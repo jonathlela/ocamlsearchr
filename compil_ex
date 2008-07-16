@@ -1,0 +1,4 @@
+#!/bin/sh
+gcc -g -O2 -fPIC main.c -Ldllocamlsearchr.so -o main
+#echo "compiling"
+#gcc -g -O2 ocamlsearchr.so main.o -o main 
