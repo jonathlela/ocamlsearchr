@@ -4,9 +4,9 @@
 int main(int argc, char ** argv)
 {
   char * result;
-  initialize(argv);
+  initialize_ocaml(argv);
   /* Do some computation */
   result = ocamlsearch("Neugier.smc","sword");
-  printf("ocamlsearch(Neugier.smc,sword) = %s\n",result);
+  printf("ocamlsearch(Neugier.smc,sword) =\n%s\n",result);
   return 0;
 }

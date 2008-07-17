@@ -2,9 +2,10 @@
 #include <string.h>
 #include <caml/alloc.h>
 #include <caml/mlvalues.h>
+#include <caml/memory.h>
 #include <caml/callback.h>
 
-void initialize_ocaml (char ** argv)
+void initialize_ocaml(char ** argv)
 {
   caml_startup(argv);
 }

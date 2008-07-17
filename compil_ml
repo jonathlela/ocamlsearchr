@@ -1,3 +1,2 @@
 #!/bin/sh
-ocamlc -output-obj -g -dtypes -o ocamlsearchr.o ocamlsearchr.ml
-
+ocamlopt -fPIC -output-obj -g -dtypes -o ocamlsearchr.o ocamlsearchr.ml
