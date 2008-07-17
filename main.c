@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "ocamlsearch.h"
+#include "ocamlsearchr.h"
 
 int main(int argc, char ** argv)
 {
@@ -7,6 +7,6 @@ int main(int argc, char ** argv)
   initialize_ocaml(argv);
   /* Do some computation */
   result = ocamlsearch("Neugier.smc","sword");
-  printf("ocamlsearch(Neugier.smc,sword) =\n%s\n",result);
+  printf("ocamlsearch(Neugier.smc,sword) =\n%s",result);
   return 0;
 }

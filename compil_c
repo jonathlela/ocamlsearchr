@@ -1,5 +1,5 @@
 #!/bin/sh
-gcc -g -c -fPIC ocamlsearch.c -o ocamlsearch.o
-gcc -g -fPIC -shared -L/usr/lib/ocaml/3.10.2 -lasmrun -lm -ldl -lcurses ocamlsearchr.o ocamlsearch.o -o libocamlsearchr.so
-#gcc -g -O2 -fPIC -shared ocamlsearchr.o ocamlsearch.c -L/usr/lib/ocaml/3.09.2/libcamlrun.a -o ocamlsearchr.so
-#gcc -g -O2 -fPIC -shared ocamlsearchr.o ocamlsearch.c -L/usr/lib/ocaml/3.09.2/libasmrun.a -o ocamlsearchr.so
+ocamlc -c ocamlsearchr.c
+gcc -g -shared -o libocamlsearchr.so search.o ocamlsearchr.o -L/usr/lib/ocaml/3.10.2 -lasmrun -lm -ldl -lcurses
+#ar rcs
+#

@@ -1,2 +1,5 @@
 #!/bin/sh
-ocamlopt -fPIC -output-obj -g -dtypes -o ocamlsearchr.o ocamlsearchr.ml
+ocamlopt -c -dtypes relative_search.ml
+ocamlopt -c -dtypes relative_search_stub.ml
+ocamlopt -g -output-obj -o search.o relative_search.cmx relative_search_stub.cmx
+

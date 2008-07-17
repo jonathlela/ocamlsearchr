@@ -1,4 +1,3 @@
 #!/bin/sh
-gcc -g -O2 -fPIC main.c -L. -locamlsearchr -L/usr/lib/ocaml/3.10.2/ -lasmrun -o main
-#echo "compiling"
-#gcc -g -O2 ocamlsearchr.so main.o -o main 
+gcc -g main.c libocamlsearchr.so -o main
+#

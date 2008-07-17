@@ -14,6 +14,6 @@ char * ocamlsearch(char * file, char * research)
 {
   static value * ocamlsearch = NULL;
   if (ocamlsearch == NULL)
-    ocamlsearch = caml_named_value("ocamlsearch");
+    ocamlsearch = caml_named_value("ocamlsearchr");
   return strdup(String_val(caml_callback2(*ocamlsearch, caml_copy_string(file), caml_copy_string(research))));
 }

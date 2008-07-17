@@ -1,14 +1,8 @@
-(*let file = Sys.argv.(1) in
-
-let research =  Sys.argv.(2) in*)
-
 exception Results_not_found
 
-let _ = Callback.register_exception "Results not found" Results_not_found
-
 let main_function file research =
-
-let rec research_to_chain (i : int) (string : string) =
+  
+  let rec research_to_chain (i : int) (string : string) =
   if i > ((String.length string) - 1) then
     []
   else
@@ -167,5 +161,3 @@ in
   let return = results ic res int_chain 10 10 in
   close_in ic;
     return
-
-let _ = Callback.register "ocamlsearch" main_function
