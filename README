@@ -1,0 +1,24 @@
+Compilation:
+
+# Compile the ocaml library to an object file
+./compile_ml
+
+# Compile to a dynamic shared library (libocamlsearchr.so)
+./compile_c
+
+# Compile the library to interface with ruby to a dynamic shared library (librubyocamlsearchr.so)
+./compile_ruby
+
+Examples:
+
+With the C library:
+./compile_exc
+LD_LIBRARY_PATH="." ./exc
+
+With the ruby library:
+LD_LIBRARY_PATH="." ruby exruby.rb
+
+Clean:
+
+# Clean all the files and examples
+./clean

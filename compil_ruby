@@ -1,0 +1,2 @@
+gcc -fPIC -I/usr/lib/ruby/1.8/i486-linux/ -g -O2  -c librubyocamlsearchr.c -o main.o
+gcc -shared -o librubyocamlsearchr.so main.o libocamlsearchr.so -lc

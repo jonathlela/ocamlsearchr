@@ -2,4 +2,5 @@ rm *.o
 rm *.so
 rm *.cm*
 rm *.annot
-rm main
+rm *~
+rm exc
