@@ -1,5 +1,3 @@
 #!/bin/sh
 ocamlc -c ocamlsearchr.c
-gcc -g -shared -o libocamlsearchr.so search.o ocamlsearchr.o -L/usr/lib/ocaml/3.10.2 -lasmrun -lm -ldl -lcurses
-#ar rcs
-#
+gcc -shared -o libocamlsearchr.so  ocamlsearchr.o  search.o /usr/lib/ocaml/3.10.2/libasmrun.a -ldl -lm   

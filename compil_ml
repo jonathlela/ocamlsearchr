@@ -1,5 +1,5 @@
 #!/bin/sh
 ocamlopt -c -dtypes relative_search.ml
 ocamlopt -c -dtypes relative_search_stub.ml
-ocamlopt -g -output-obj -o search.o relative_search.cmx relative_search_stub.cmx
+ocamlopt -output-obj -o search.o relative_search.cmx relative_search_stub.cmx
 
