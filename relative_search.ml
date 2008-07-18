@@ -1,103 +1,72 @@
 exception Results_not_found
 
-let main_function file research =
-  
-  let rec research_to_chain (i : int) (string : string) =
-  if i > ((String.length string) - 1) then
-    []
-  else
-    (int_of_char (string.[i])) :: (research_to_chain (i+1) string)
-in
+let pos = ref 0
+let ic = ref stdin
+let chain = ref []
 
-let int_chain = research_to_chain 0 research
-in
+let get_pos () = !pos
 
-let ic = open_in_bin file 
-in
-
-let length = in_channel_length ic in
-
-let range_list (min : int) (max : int) =
-  let rec loop l i j =
-    if i > j then
-      l
-    else
-      loop (i::l) (i+1) j
+let init file research = 
+  let () = pos := 0 in
+  let () = ic := open_in_bin file in
+  let rec research_to_chain string =
+    let rec loop i string list =
+      if i > ((String.length string) - 1) then
+	list
+      else
+	loop (i+1) string ((int_of_char (string.[i]))::list)
+    in loop 0 string []
+  in    
+  let differential_chain chain =
+    let rec loop res chain =
+      match chain with
+	  [] -> failwith "Should not happen"
+	| head::[] -> List.rev res
+	| head::tail -> loop (((List.hd tail) - head)::res) tail 
+    in
+      loop [] chain
   in
-    loop [] min max
-in
+    chain := differential_chain (research_to_chain research)
+      
 
-let file_percents =
-  List.rev
-    (
-      List.map
-	(
-	  fun i -> match i with
-	      0 -> 0,0
-	    | _ -> (length*i/100),i
-	)
-	(range_list 0 100)
-    )
-in
-  
-let differential_chain chain =
-  let rec loop res c =
-    match c with
-	[] -> failwith "Should not happen"
-      | head::[] -> res
-      | head::tail -> loop (((List.hd tail)- head)::res) tail 
+let main_function () =
+    
+  let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
+    List.fold_left
+      (
+	fun (final,new_todos) todo -> match todo with
+	    i,[] -> i::final,new_todos
+	  | i,value::tail -> 
+	      if value = diff then
+		final,(i,tail)::new_todos
+	      else
+		final,new_todos
+		  
+      )
+      ([],[]) todos 
   in
-    loop [] chain
-in
-
-let chain = List.rev (differential_chain int_chain) in
-
-
-let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
-  List.fold_left
-    (
-      fun (final,new_todos) todo -> match todo with
-	  i,[] -> i::final,new_todos
-	| i,value::tail -> 
-	    if value = diff then
-	      final,(i,tail)::new_todos
-	    else
-	      final,new_todos
-		
-    )
-    ([],[]) todos 
-in
   
-let rec search_byte_chain_in_channel (res : int list) (percent : (int * int) list) (previous_byte : int) (todos : (int * int list) list) (chain : int list) (channel : in_channel) =
-  let new_byte =
-    try
-      input_byte channel
-    with
-	End_of_file -> -1
+  let rec search_byte_chain_in_channel (res : int list) (previous_byte : int) (todos : (int * int list) list) (chain : int list) (channel : in_channel) =
+    let new_byte =
+      try
+	input_byte channel
+      with
+	  End_of_file -> -1
+    in
+      if new_byte > -1 then
+	let current_pos =  (pos_in channel) -1 in
+	  if previous_byte = -1 then
+	    search_byte_chain_in_channel res new_byte todos chain channel
+	  else
+	    let new_todo = (current_pos-1),chain 
+	    in
+	    let new_res,todos = search_byte_with_todos (new_todo::todos) (new_byte - previous_byte) in
+	      search_byte_chain_in_channel (new_res@res) new_byte todos chain channel
+      else
+	res
   in
-    if new_byte > -1 then
-      let current_pos =  (pos_in channel) -1 in
-      let new_percent =
-	match percent with
-	    (head,i)::tail -> 
-	      if head = current_pos then
-		let () = Printf.printf ("%i\n%!") i in tail 
-	      else percent
-	  | _ -> percent
-      in
-	if previous_byte = -1 then
-	  search_byte_chain_in_channel res new_percent new_byte todos chain channel
-	else
-	  let new_todo = (current_pos-1),chain 
-	  in
-	  let new_res,todos = search_byte_with_todos (new_todo::todos) (new_byte - previous_byte) in
-	    search_byte_chain_in_channel (new_res@res) new_percent new_byte todos chain channel
-    else
-      res
-in
-  
-let res = search_byte_chain_in_channel [] (List.rev file_percents) 0 [] chain ic
-
+    
+  let res = search_byte_chain_in_channel [] 0 [] !chain !ic 
 in
 let n_steps_chars n channel diff =
   let rec loop string n channel diff =
@@ -156,8 +125,8 @@ in
     raise Results_not_found
   else
     (*Printf.printf "Results found:\n%!";*)
-  seek_in ic 0;
+  seek_in !ic 0;
   (*Printf.printf "%s%!" (results ic res int_chain 10 10);*)
-  let return = results ic res int_chain 10 10 in
-  close_in ic;
+  let return = results !ic res !chain 10 10 in
+  close_in !ic;
     return
