@@ -1,10 +1,16 @@
 exception Results_not_found
 
+type config = {
+  previous_byte: int;
+  to_do_list: (int * int list) list;
+}
+
 let pos = ref 0
 let ic = ref stdin
 let file = ref ""
 let research = ref ""
 let chain = ref []
+let config = ref {previous_byte=0; to_do_list=[]}
 
 let get_pos () = !pos
 
@@ -35,106 +41,44 @@ let init afile aresearch =
   (*let () = Printf.printf "to_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (research_to_chain research)) in
   let () = Printf.printf "to_diff_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (differential_chain (research_to_chain research))) in*)
       ()
-
-let main_function () =
-    
-  let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
-    (*let () = Printf.printf "%s :%i\n%!" (List.fold_left (fun acc (i,is) -> Printf.sprintf "%s (%i, %s)" acc i (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" is)) "" todos) diff in*)
-    List.fold_left
-      (
-	fun (final,new_todos) todo -> match todo with
-	    i,[] -> i::final,new_todos
-	  | i,value::tail -> 
-	      if value = diff then
-		final,(i,tail)::new_todos
-	      else
-		final,new_todos
-		  
-      )
-      ([],[]) todos 
-  in
-  
-  let rec search_byte_chain_in_channel (res : int list) (previous_byte : int) (todos : (int * int list) list) (chain : int list) (channel : in_channel) =
-    let new_byte =
-      try
-	input_byte channel
-      with
-	  End_of_file -> -1
-    in
-    let () = pos := (pos_in channel) -1 in
-      if new_byte > -1 then
-	  if previous_byte = -1 then
-	    search_byte_chain_in_channel res new_byte todos chain channel
-	  else
-	    let new_todo = (!pos-1),chain in
-	    let new_res,todos = search_byte_with_todos (new_todo::todos) (new_byte - previous_byte) in
-	      search_byte_chain_in_channel (new_res@res) new_byte todos chain channel
-      else
-	res
-  in
-    
-  let res = search_byte_chain_in_channel [] 0 [] !chain !ic 
-in
-let n_steps_chars n channel diff =
-  let rec loop string n channel diff =
-    match n with
-	0 -> string
-      | _ -> 
-	  try 
-	    let current = input_byte channel in
-	    let differencied_current = current + diff in
-	      if differencied_current < 32 || differencied_current > 126 then
-		loop (string^".") (n-1) channel diff
-	      else
-		loop (string^(Printf.sprintf "%c" (char_of_int differencied_current))) (n-1) channel diff
-	  with
-	    End_of_file -> string
-  in
-    loop "" n channel diff
-in
-
-let n_steps_hex n channel diff =
-  let rec loop string n channel diff =
-    match n with
-	0 -> String.sub string 1 ((String.length string)-1)
-      | _ -> 
-	  try 
-	    let current = input_byte channel in
-	    let differencied_current = current + diff in
-	      loop (string^" "^(Printf.sprintf "%02X" differencied_current)) (n-1) channel diff
-	  with
-	    End_of_file -> string
-  in
-    loop "" n channel diff
-in
-let results channel positions int_chain before after = 
+   
+let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
+  (*let () = Printf.printf "%s :%i\n%!" (List.fold_left (fun acc (i,is) -> Printf.sprintf "%s (%i, %s)" acc i (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" is)) "" todos) diff in*)
   List.fold_left
     (
-      fun str pos -> 
-	seek_in channel (pos);
-	let current = input_byte channel in
-	let diff = (List.hd (research_to_chain !research)) - current in
-	(*let () = Printf.printf "%i - %i = %i\n%!" (List.hd int_chain) current diff in*)
-	seek_in channel (pos-before-1);
-	let str_pre1 = n_steps_hex before channel 0 in
-	seek_in channel (pos-before);
-	let str_pre2 = n_steps_chars before channel diff in
-	seek_in channel (pos+1);
-	let str_post1 = n_steps_hex after channel 0 in
-	seek_in channel (pos+1);
-	let str_post2 = n_steps_chars after channel diff in
-	(Printf.sprintf "%08d" pos)^": "^str_pre1^" "^(Printf.sprintf "%02X" (current + diff))^" "^str_post1^" | "^str_pre2^(Printf.sprintf "%c" (char_of_int (current + diff)))^str_post2^", "^(Printf.sprintf "A=%02X" ((int_of_char 'A') + diff))^"\n"^str
+      fun (final,new_todos) todo -> match todo with
+	  i,[] -> (i,diff),new_todos
+	| i,value::tail -> 
+	    if value = diff then
+	      final,(i,tail)::new_todos
+	    else
+	      final,new_todos
+		
     )
-    "" positions
-in
-  
-  if res = [] then
-    (*Printf.printf "No results found\n%!"*)
-    raise Results_not_found
-  else
-    (*Printf.printf "Results found:\n%!";*)
-  seek_in !ic 0;
-  (*Printf.printf "%s%!" (results ic res int_chain 10 10);*)
-  let return = results !ic res !chain 10 10 in
-  close_in !ic;
-    return
+    ((-1,-1),[]) todos 
+    
+let rec search_byte_chain_in_channel (aconfig: config) (chain : int list) (channel : in_channel) =
+  let new_byte =
+    try
+      input_byte channel
+    with
+	End_of_file -> -1
+    in
+  let () = pos := (pos_in channel) -1 in
+    if new_byte > -1 then
+      if aconfig.previous_byte = -1 then
+	let () = config := {previous_byte=new_byte; to_do_list=[]} in
+	  search_byte_chain_in_channel !config chain channel
+      else
+	let new_todo = (!pos-1),chain in
+	let new_res,todos = search_byte_with_todos (new_todo::aconfig.to_do_list) (new_byte - aconfig.previous_byte) in
+	let  () = config := {previous_byte=new_byte; to_do_list=todos} in
+	  if new_res = (-1,-1) then
+	    search_byte_chain_in_channel !config chain channel
+	  else
+	    let () = match new_res with x,y -> Printf.printf "%i %i\n%!" x y in 
+	    new_res
+    else
+      raise Results_not_found
+
+let search () = search_byte_chain_in_channel !config !chain !ic

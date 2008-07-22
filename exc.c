@@ -3,10 +3,13 @@
 
 int main(int argc, char ** argv)
 {
-  char * result;
+  struct result result;
   initialize_ocaml(argv);
   /* Do some computation */
-  result = ocamlsearch("Neugier.smc","sword");
-  printf("ocamlsearch(Neugier.smc,sword) =\n%s",result);
+  init("Neugier.smc","sword");
+  result = ocamlsearch();
+  printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position,result.difference);
+  result = ocamlsearch();
+  printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position,result.difference);
   return 0;
 }

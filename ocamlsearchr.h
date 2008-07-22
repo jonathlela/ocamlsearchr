@@ -1,4 +1,12 @@
+struct result {
+  int position; 
+  int difference;
+};
+
 void initialize_ocaml(char ** argv);
 
-char * ocamlsearch(char * file, char * research);
+void initialize(char * file, char * research);
 
+int get_position();
+
+struct result ocamlsearch();

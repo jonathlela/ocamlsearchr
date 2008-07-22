@@ -1,4 +1,6 @@
 require "librubyocamlsearchr"
-searcher = OcamlSearchR.new()
-res = searcher.search("Neugier.smc","sword")
+searcher = OcamlSearchR.new("Neugier.smc","sword")
+res = searcher.search()
+p res
+res = searcher.search()
 p res
