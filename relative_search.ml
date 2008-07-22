@@ -2,36 +2,44 @@ exception Results_not_found
 
 let pos = ref 0
 let ic = ref stdin
+let file = ref ""
+let research = ref ""
 let chain = ref []
 
 let get_pos () = !pos
 
-let init file research = 
-  let () = pos := 0 in
-  let () = ic := open_in_bin file in
-  let rec research_to_chain string =
-    let rec loop i string list =
+let rec research_to_chain string =
+  let rec loop i string list =
       if i > ((String.length string) - 1) then
-	list
+	List.rev list
       else
 	loop (i+1) string ((int_of_char (string.[i]))::list)
-    in loop 0 string []
-  in    
-  let differential_chain chain =
-    let rec loop res chain =
-      match chain with
-	  [] -> failwith "Should not happen"
-	| head::[] -> List.rev res
-	| head::tail -> loop (((List.hd tail) - head)::res) tail 
-    in
-      loop [] chain
+  in loop 0 string []
+       
+let differential_chain chain =
+  let rec loop res chain =
+    match chain with
+	[] -> failwith "Should not happen"
+      | head::[] -> List.rev res
+      | head::tail -> loop (((List.hd tail) - head)::res) tail 
   in
-    chain := differential_chain (research_to_chain research)
+    loop [] chain
       
+let init afile aresearch = 
+  let () = pos := 0 in
+  let () = ic := open_in_bin afile in
+  let () = file := afile in
+  (*let ()= Printf.printf "%s :: %s\n%!" file research in*)
+  let () = research := aresearch in
+  let () = chain := differential_chain (research_to_chain aresearch) in
+  (*let () = Printf.printf "to_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (research_to_chain research)) in
+  let () = Printf.printf "to_diff_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (differential_chain (research_to_chain research))) in*)
+      ()
 
 let main_function () =
     
   let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
+    (*let () = Printf.printf "%s :%i\n%!" (List.fold_left (fun acc (i,is) -> Printf.sprintf "%s (%i, %s)" acc i (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" is)) "" todos) diff in*)
     List.fold_left
       (
 	fun (final,new_todos) todo -> match todo with
@@ -53,13 +61,12 @@ let main_function () =
       with
 	  End_of_file -> -1
     in
+    let () = pos := (pos_in channel) -1 in
       if new_byte > -1 then
-	let current_pos =  (pos_in channel) -1 in
 	  if previous_byte = -1 then
 	    search_byte_chain_in_channel res new_byte todos chain channel
 	  else
-	    let new_todo = (current_pos-1),chain 
-	    in
+	    let new_todo = (!pos-1),chain in
 	    let new_res,todos = search_byte_with_todos (new_todo::todos) (new_byte - previous_byte) in
 	      search_byte_chain_in_channel (new_res@res) new_byte todos chain channel
       else
@@ -106,7 +113,8 @@ let results channel positions int_chain before after =
       fun str pos -> 
 	seek_in channel (pos);
 	let current = input_byte channel in
-	let diff = (List.hd int_chain) - current in
+	let diff = (List.hd (research_to_chain !research)) - current in
+	(*let () = Printf.printf "%i - %i = %i\n%!" (List.hd int_chain) current diff in*)
 	seek_in channel (pos-before-1);
 	let str_pre1 = n_steps_hex before channel 0 in
 	seek_in channel (pos-before);
