@@ -7,9 +7,12 @@ int main(int argc, char ** argv)
   initialize_ocaml(argv);
   /* Do some computation */
   init("Neugier.smc","sword");
-  result = ocamlsearch();
-  printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position,result.difference);
-  result = ocamlsearch();
-  printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position,result.difference);
+  while (1) {
+      result = ocamlsearch();
+      if (result_equals(&result,&Not_found))
+	break;
+      else
+	printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position,result.difference);
+  }
   return 0;
 }

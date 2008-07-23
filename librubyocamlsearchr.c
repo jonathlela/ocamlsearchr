@@ -17,9 +17,16 @@ static VALUE t_init(VALUE self, VALUE file, VALUE word)
 
 static VALUE t_search(VALUE self)
 {
-  int result;
+  struct result result;
+  VALUE res;
+
   result = ocamlsearch();
-  return INT2FIX(result);
+  if (result_equals(&result, &Not_found))
+    rb_raise(rb_eException, "Results not found");
+  res = rb_ary_new();
+  rb_ary_push(res, INT2FIX(result.position));
+  rb_ary_push(res, INT2FIX(result.difference));
+  return res;
 }
 
 static VALUE t_pos(VALUE self)

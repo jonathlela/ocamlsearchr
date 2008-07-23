@@ -76,7 +76,6 @@ let rec search_byte_chain_in_channel (aconfig: config) (chain : int list) (chann
 	  if new_res = (-1,-1) then
 	    search_byte_chain_in_channel !config chain channel
 	  else
-	    let () = match new_res with x,y -> Printf.printf "%i %i\n%!" x y in 
 	    new_res
     else
       raise Results_not_found
