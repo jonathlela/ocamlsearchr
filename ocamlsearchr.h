@@ -3,6 +3,8 @@ struct result {
   int * match;
 };
 
+void delete_struct(struct result * res);
+
 const struct result Not_found;
 
 int result_equals(const struct result * r1, const struct result * r2);

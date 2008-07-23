@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "ocamlsearchr.h"
 
 int main(int argc, char ** argv)
@@ -16,9 +17,10 @@ int main(int argc, char ** argv)
 	int position = result.position;
 	int * res = result.match;
 	for(; *res != 0; ++res) {
-	  printf("@%i\n",*res);
+	  printf("@|%X|\n",*res);
 	}
 	printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",result.position);
+	delete_struct(&result);
       }
   }
   return 0;
