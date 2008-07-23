@@ -1,9 +1,22 @@
 exception Results_not_found
 
+type todo = {
+  position: int;
+  nexts: int list;
+  res: int list;
+}
+
+let empty = {
+  position = -1;
+  nexts = [];
+  res = [];
+}
+
 type config = {
   previous_byte: int;
-  to_do_list: (int * int list) list;
+  to_do_list: todo list;
 }
+
 
 let pos = ref 0
 let ic = ref stdin
@@ -42,20 +55,25 @@ let init afile aresearch =
   let () = Printf.printf "to_diff_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (differential_chain (research_to_chain research))) in*)
       ()
    
-let search_byte_with_todos (todos : (int * int list) list) (diff : int) =
+let search_byte_with_todos (todos : todo list) (diff : int) (current_byte : int) =
   (*let () = Printf.printf "%s :%i\n%!" (List.fold_left (fun acc (i,is) -> Printf.sprintf "%s (%i, %s)" acc i (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" is)) "" todos) diff in*)
   List.fold_left
     (
-      fun (final,new_todos) todo -> match todo with
-	  i,[] -> (i,diff),new_todos
-	| i,value::tail -> 
-	    if value = diff then
-	      final,(i,tail)::new_todos
-	    else
-	      final,new_todos
-		
+      fun (final,new_todos) todo -> 
+	match todo with
+	  |  {position=i;nexts=[];res=res} -> failwith "Sould not happen"
+	  |  {position=i;nexts=value::[];res=res} -> 
+	       if value = diff then
+		 {position=i;nexts=[];res=current_byte::res},new_todos
+	       else
+		 final,new_todos
+	  | {position=i;nexts=value::tail;res=res} -> 
+	      if value = diff then
+		final,{position=i;nexts=tail;res=current_byte::res}::new_todos
+	      else
+		final,new_todos
     )
-    ((-1,-1),[]) todos 
+    (empty,[]) todos 
     
 let rec search_byte_chain_in_channel (aconfig: config) (chain : int list) (channel : in_channel) =
   let new_byte =
@@ -70,13 +88,14 @@ let rec search_byte_chain_in_channel (aconfig: config) (chain : int list) (chann
 	let () = config := {previous_byte=new_byte; to_do_list=[]} in
 	  search_byte_chain_in_channel !config chain channel
       else
-	let new_todo = (!pos-1),chain in
-	let new_res,todos = search_byte_with_todos (new_todo::aconfig.to_do_list) (new_byte - aconfig.previous_byte) in
+	let new_todo =   {position=(!pos-1);nexts=chain;res=[]} in
+	let new_res,todos = search_byte_with_todos (new_todo::aconfig.to_do_list) (new_byte - aconfig.previous_byte) new_byte in
 	let  () = config := {previous_byte=new_byte; to_do_list=todos} in
-	  if new_res = (-1,-1) then
+	  if new_res = empty then
 	    search_byte_chain_in_channel !config chain channel
 	  else
-	    new_res
+	    let () = List.iter (fun i -> Printf.printf "%i\n%!" i) (List.rev new_res.res) in
+	    (new_res.position,(Array.of_list (List.rev new_res.res)))
     else
       raise Results_not_found
 

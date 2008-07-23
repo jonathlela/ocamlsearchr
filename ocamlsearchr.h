@@ -1,6 +1,6 @@
 struct result {
   int position; 
-  int difference;
+  int * match;
 };
 
 const struct result Not_found;
