@@ -6,50 +6,70 @@
 #include <caml/memory.h>
 #include <caml/callback.h>
 
-struct result {
+static void initialize_ocaml(void) __attribute__ ((constructor));
+
+typedef struct {
+  int length;
+  char * chain;
+} bytechain;
+
+typedef struct {
   int position; 
-  int * match;
-};
+  bytechain * match;
+} result;
 
 
-struct result new_struct(const value * res) {
+result * new_struct(const value * res) {
 
-  struct result result;
+  result * result;
+  bytechain * chain;
+  char * array;
 
   value position = Field(*res,0);
   value match = Field(*res,1);
 
   int pos = Int_val(position);
 
-  int * array;
   int length = Wosize_val(match);
-  array = malloc(length*sizeof(int));
+  array = malloc(length*sizeof(char));
 
   int i;
   for (i = 0; i < length; i++) {
     array[i] = Int_val(Field(match,i));
   }
 
-  result.position = pos;
-  result.match = array;
+  chain = malloc(sizeof(bytechain));
+  chain->length = length;
+  chain->chain = array;  
+
+  result = malloc(sizeof(result));
+  result->position = pos;
+  result->match = chain;
 
   return result;
 }
 
 
-void delete_struct(struct result * res) {
+void delete_struct(result * res) {
+  free(res->match->chain);
   free(res->match);
+  free(res);
+
 }
 
-const struct result Not_found = {-1, NULL};
+const result Not_found = {-1, NULL};
 
-int result_equals(const struct result * r1, const struct result * r2) {
+int result_equals(const result * r1, const result * r2) {
   return r1->position == r2->position;
 } 
 
-void initialize_ocaml(char ** argv)
+void initialize_ocaml()
 {
-  caml_startup(argv);
+  char *empty[2];
+  empty[0] = "";
+  empty[1] = NULL;
+
+  caml_startup(empty);
 }
 
 void init(char * file, char * research)
@@ -60,18 +80,28 @@ void init(char * file, char * research)
   caml_callback2(*init, caml_copy_string(file), caml_copy_string(research));
 }
 
-struct result ocamlsearch()
+void reset()
+{
+  static value * reset = NULL;
+  if (reset == NULL)
+    reset = caml_named_value("reset");
+  caml_callback(*reset, Val_int(0));
+}
+
+result * ocamlsearch()
 {
   static value * ocamlsearch = NULL;
   value res;
 
   if (ocamlsearch == NULL)
     ocamlsearch = caml_named_value("ocamlsearchr");
-  struct result result;
+  result tmp;  
+  result * result;  
   res = callback_exn(*ocamlsearch, Val_int(0));
   if (Is_exception_result(res)) 
     {
-      result = Not_found;
+      tmp = Not_found;
+      result = &tmp;
     }
   else
     {

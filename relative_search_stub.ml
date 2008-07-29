@@ -4,6 +4,10 @@ let _ = Callback.register "pos" Relative_search.get_pos
 
 let _ = Callback.register "init" Relative_search.init
 
+let _ = Callback.register "close" Relative_search.init
+
+let _ = Callback.register "reset" Relative_search.init
+
 let _ = Callback.register "ocamlsearchr" Relative_search.search
 
 let _ = Callback.register "to_array" Array.of_list

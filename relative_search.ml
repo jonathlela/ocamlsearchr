@@ -54,6 +54,14 @@ let init afile aresearch =
   (*let () = Printf.printf "to_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (research_to_chain research)) in
   let () = Printf.printf "to_diff_chain: %s\n%!" (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" (differential_chain (research_to_chain research))) in*)
       ()
+
+let reset () =
+  let () = pos := 0 in
+  let () = seek_in !ic 0 in
+    ()
+      
+let close () =
+  close_in !ic
    
 let search_byte_with_todos (todos : todo list) (diff : int) (current_byte : int) =
   (*let () = Printf.printf "%s :%i\n%!" (List.fold_left (fun acc (i,is) -> Printf.sprintf "%s (%i, %s)" acc i (List.fold_left (fun acc i -> Printf.sprintf "%s %i" acc i) "" is)) "" todos) diff in*)

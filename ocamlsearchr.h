@@ -1,13 +1,18 @@
-struct result {
+typedef struct {
+  int length;
+  char * chain;
+} bytechain;
+
+typedef struct {
   int position; 
-  int * match;
-};
+  bytechain * match;
+} result;
 
-void delete_struct(struct result * res);
+void delete_struct(result * res);
 
-const struct result Not_found;
+const result Not_found;
 
-int result_equals(const struct result * r1, const struct result * r2);
+int result_equals(const result * r1, const result * r2);
 
 void initialize_ocaml(char ** argv);
 
@@ -15,4 +20,4 @@ void initialize(char * file, char * research);
 
 int get_position();
 
-struct result ocamlsearch();
+result * ocamlsearch();

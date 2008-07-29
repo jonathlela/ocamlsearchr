@@ -4,6 +4,7 @@
 #
 require 'libglade2'
 require 'gtk2'
+require "librubyocamlsearchr"
 
 class OcamlsearchrGlade
   include GetText
@@ -14,6 +15,8 @@ class OcamlsearchrGlade
     bindtextdomain(domain, localedir, nil, "UTF-8")
     @glade = GladeXML.new(path_or_data, root, domain, localedir, flag) {|handler| method(handler)}
     @fileselector = @glade.get_widget("filechooser1")
+    @searcharea = @glade.get_widget("vbox2")
+    @to_find = @glade.get_widget("entry5")
     @listview = @glade.get_widget("treeview1")
     [_("Adress"), _("Hexadecimal"), _("Text")].each_with_index { |name, i|
       column = Gtk::TreeViewColumn.new(name, Gtk::CellRendererText.new, :text => i)
@@ -22,9 +25,16 @@ class OcamlsearchrGlade
     @store = Gtk::ListStore.new(String, String, String)
     @listview.model = @store
   end
-  
+
   def on_open1_activate(widget)
-    @fileselector.show
+    ret = @fileselector.run
+    if ret == Gtk::Dialog::RESPONSE_OK then
+      @file = @fileselector.filename
+    end
+    @searcharea.sensitive = true
+    @fileselector.hide
+
+
   end
   def on_quit1_activate(widget)
     Gtk.main_quit
@@ -33,10 +43,23 @@ class OcamlsearchrGlade
     Gtk.main_quit
   end
   def on_startbutton_pressed(widget)
-    iter = @store.append
-    iter[0] = "Joe"
-    iter[1] = "Average"
-    iter[2] = "1970"
+    p @file
+    p @to_find.text
+    #searcher = OcamlSearchR.new(@file,@to_find.text)
+p "before"
+searcher = OcamlSearchR.new("/home/jonathlela/ocamlsearchr/Neugier.smc","sword")
+p "after"
+    while true do
+      begin
+        pos,bytes = searcher.search()
+        iter = @store.append
+        iter[0] = pos.to_s
+        iter[1] = bytes.to_s
+        iter[2] = bytes.to_s
+      rescue Exception => exc
+        break
+      end
+    end
   end
   def on_A_propos1_activate(widget)
     puts "on_A_propos1_activate() is not implemented yet."

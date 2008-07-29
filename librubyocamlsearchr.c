@@ -5,27 +5,45 @@ VALUE cOcamlSearchR;
 
 static VALUE t_init(VALUE self, VALUE file, VALUE word)
 {
-  char *vide[2];
-
-  vide[0] = "bof";
-  vide[1] = NULL;
-  initialize_ocaml(vide);
   init(STR2CSTR(file),STR2CSTR(word));
   return self;
+}
 
+static VALUE t_reset()
+{
+  reset();
 }
 
 static VALUE t_search(VALUE self)
 {
-  struct result result;
+  result * result;
   VALUE res;
+  VALUE bytes;
+  int position;
+  bytechain * match;
+  char * chain;
+
+  res = rb_ary_new();
+  bytes = rb_ary_new();
 
   result = ocamlsearch();
-  if (result_equals(&result, &Not_found))
+  if (result_equals(result, &Not_found))
     rb_raise(rb_eException, "Results not found");
-  res = rb_ary_new();
-  rb_ary_push(res, INT2FIX(result.position));
-  rb_ary_push(res, INT2FIX(result.difference));
+ 
+  position = result->position;
+  match = result->match;
+  chain = match->chain;
+
+  int i;
+  for(i=0; i < match->length; i++) {
+    rb_ary_push(bytes, INT2FIX(chain[i]));
+  }
+
+  delete_struct(result);
+
+  rb_ary_push(res, INT2FIX(position));
+  rb_ary_push(res, bytes);
+  
   return res;
 }
 
@@ -39,6 +57,7 @@ static VALUE t_pos(VALUE self)
 void Init_librubyocamlsearchr() {
   cOcamlSearchR = rb_define_class("OcamlSearchR", rb_cObject);
   rb_define_method(cOcamlSearchR, "initialize", t_init, 2);
+  rb_define_method(cOcamlSearchR, "reset", t_reset, 0);
   rb_define_method(cOcamlSearchR, "pos", t_pos, 0);
   rb_define_method(cOcamlSearchR, "search", t_search, 0);
 }
