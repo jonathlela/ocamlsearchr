@@ -43,19 +43,17 @@ class OcamlsearchrGlade
     Gtk.main_quit
   end
   def on_startbutton_pressed(widget)
-    p @file
-    p @to_find.text
-    #searcher = OcamlSearchR.new(@file,@to_find.text)
-p "before"
-searcher = OcamlSearchR.new("/home/jonathlela/ocamlsearchr/Neugier.smc","sword")
-p "after"
-    while true do
+    @store.clear
+    searcher = OcamlSearchR.new(@file,@to_find.text)
+    while true
       begin
         pos,bytes = searcher.search()
+        position = sprintf("%012d",pos.to_s)
+        hexmatch = bytes.collect{|x| sprintf("%X",x.to_s)}.join(" ")
         iter = @store.append
-        iter[0] = pos.to_s
-        iter[1] = bytes.to_s
-        iter[2] = bytes.to_s
+        @store.set_value(iter,0,position)
+        @store.set_value(iter,1,hexmatch)
+        @store.set_value(iter,2,bytes.to_s)
       rescue Exception => exc
         break
       end

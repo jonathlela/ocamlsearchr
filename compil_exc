@@ -1,3 +1,2 @@
 #!/bin/sh
 gcc -g exc.c libocamlsearchr.so -o exc
-#

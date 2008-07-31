@@ -24,6 +24,7 @@ result * new_struct(const value * res) {
   result * result;
   bytechain * chain;
   char * array;
+  int iterator;
 
   value position = Field(*res,0);
   value match = Field(*res,1);
@@ -31,11 +32,10 @@ result * new_struct(const value * res) {
   int pos = Int_val(position);
 
   int length = Wosize_val(match);
-  array = malloc(length*sizeof(char));
 
-  int i;
-  for (i = 0; i < length; i++) {
-    array[i] = Int_val(Field(match,i));
+  array = malloc(length*sizeof(char));
+  for (iterator=0; iterator < length; iterator++) {
+    array[iterator] = Int_val(Field(match,iterator));
   }
 
   chain = malloc(sizeof(bytechain));
@@ -92,16 +92,17 @@ result * ocamlsearch()
 {
   static value * ocamlsearch = NULL;
   value res;
+  result * result;  
 
   if (ocamlsearch == NULL)
-    ocamlsearch = caml_named_value("ocamlsearchr");
-  result tmp;  
-  result * result;  
+    ocamlsearch = caml_named_value("ocamlsearchr"); 
   res = callback_exn(*ocamlsearch, Val_int(0));
   if (Is_exception_result(res)) 
     {
-      tmp = Not_found;
-      result = &tmp;
+      result = malloc(sizeof(result));
+      result->position  = Not_found.position;
+      result->match  = Not_found.match;
+      printf("Not_found: %i\n",result->position);
     }
   else
     {

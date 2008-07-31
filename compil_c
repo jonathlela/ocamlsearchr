@@ -1,3 +1,4 @@
 #!/bin/sh
+OCAMLLIB=`ocamlc -where`
 ocamlc -c ocamlsearchr.c
-gcc -shared -o libocamlsearchr.so  ocamlsearchr.o  search.o /usr/lib/ocaml/3.10.2/libasmrun.a -ldl -lm   
+gcc -shared -o libocamlsearchr.so  ocamlsearchr.o  search.o ${OCAMLLIB}/libasmrun.a -ldl -lm   

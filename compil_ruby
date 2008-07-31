@@ -1,2 +1,4 @@
-gcc -fPIC -I/usr/lib/ruby/1.8/i486-linux/ -g -O2  -c librubyocamlsearchr.c -o main.o
+#!/bin/sh
+RUBYINC=`ruby -r mkmf -e 'print Config::CONFIG["archdir"]'`
+gcc -fPIC -I${RUBYINC} -g -O2  -c librubyocamlsearchr.c -o main.o
 gcc -shared -o librubyocamlsearchr.so main.o libocamlsearchr.so -lc

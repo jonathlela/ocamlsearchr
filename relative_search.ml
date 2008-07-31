@@ -102,7 +102,6 @@ let rec search_byte_chain_in_channel (aconfig: config) (chain : int list) (chann
 	  if new_res = empty then
 	    search_byte_chain_in_channel !config chain channel
 	  else
-	    let () = List.iter (fun i -> Printf.printf "%i\n%!" i) (List.rev new_res.res) in
 	    (new_res.position,(Array.of_list (List.rev new_res.res)))
     else
       raise Results_not_found
