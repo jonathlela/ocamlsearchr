@@ -1,5 +1,5 @@
 require "librubyocamlsearchr"
-searcher = OcamlSearchR.new("/home/jonathlela/ocamlsearchr/Neugier.smc","sword")
+searcher = OcamlSearchR.new("Neugier.smc","sword")
 while true do
   begin
     res = searcher.search()

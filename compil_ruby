@@ -1,4 +1,7 @@
 #!/bin/sh
 RUBYINC=`ruby -r mkmf -e 'print Config::CONFIG["archdir"]'`
-gcc -fPIC -I${RUBYINC} -g -O2  -c librubyocamlsearchr.c -o main.o
-gcc -shared -o librubyocamlsearchr.so main.o libocamlsearchr.so -lc
+RUBYLIB=`ruby -r mkmf -e 'print Config::CONFIG["LIBRUBYARG_SHARED"]'`
+
+gcc -fPIC -I${RUBYINC} -g -O2 -c librubyocamlsearchr.c -o main.o
+
+gcc -shared -o librubyocamlsearchr.so main.o libocamlsearchr.so ${RUBYLIB}

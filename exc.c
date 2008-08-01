@@ -25,8 +25,8 @@ int main(int argc, char ** argv)
 	  printf("@|%X|\n",res[i]);
 	}
 	printf("ocamlsearch(Neugier.smc,sword) =\n%i A=%i\n",position,position);
-	delete_struct(result);
       }
+      delete_struct(result);
   }
   return 0;
 }
