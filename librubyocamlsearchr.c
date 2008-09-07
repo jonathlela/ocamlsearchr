@@ -5,13 +5,14 @@ VALUE cOcamlSearchR;
 
 static VALUE t_init(VALUE self, VALUE file, VALUE word)
 {
-  init(STR2CSTR(file),STR2CSTR(word));
+  int search = init(STR2CSTR(file),STR2CSTR(word));
+  rb_iv_set(self,"@nb", (INT2FIX(search)));
   return self;
 }
 
-static VALUE t_reset()
+static VALUE t_reset(VALUE self)
 {
-  reset();
+  reset(FIX2INT(rb_iv_get(self,"@nb")));
 }
 
 static VALUE t_search(VALUE self)
@@ -26,7 +27,7 @@ static VALUE t_search(VALUE self)
   res = rb_ary_new();
   bytes = rb_ary_new();
 
-  result = ocamlsearch();
+  result = ocamlsearch(FIX2INT(rb_iv_get(self,"@nb")));
   if (result_equals(result, &Not_found))
     rb_raise(rb_eException, "Results not found");
  
@@ -50,7 +51,7 @@ static VALUE t_search(VALUE self)
 static VALUE t_pos(VALUE self)
 {
   int pos;
-  pos = get_position();
+  pos = get_position(FIX2INT(rb_iv_get(self, "@nb")));
   return INT2FIX(pos);
 }
 

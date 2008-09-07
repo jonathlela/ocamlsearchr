@@ -4,13 +4,14 @@
 
 int main(int argc, char ** argv)
 {
+  int search;
   result * result;
   bytechain * match;
 
   /* Do some computation */
-  init("Neugier.smc","sword");
+  search = init("Neugier.smc","sword");
   while (1) {
-      result = ocamlsearch();
+      result = ocamlsearch(search);
       if (result_equals(result,&Not_found)) {
 	printf("Results not found!\n");
 	break;

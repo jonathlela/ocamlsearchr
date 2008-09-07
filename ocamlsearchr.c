@@ -72,23 +72,26 @@ void initialize_ocaml()
   caml_startup(empty);
 }
 
-void init(char * file, char * research)
+int init(char * file, char * research)
 {
   static value * init = NULL;
+  value res;
+
   if (init == NULL)
     init = caml_named_value("init");
-  caml_callback2(*init, caml_copy_string(file), caml_copy_string(research));
+  res = caml_callback2(*init, caml_copy_string(file), caml_copy_string(research));
+  return Int_val(res);
 }
 
-void reset()
+void reset(int search)
 {
   static value * reset = NULL;
   if (reset == NULL)
     reset = caml_named_value("reset");
-  caml_callback(*reset, Val_int(0));
+  caml_callback(*reset, Val_int(search));
 }
 
-result * ocamlsearch()
+result * ocamlsearch(int search)
 {
   static value * ocamlsearch = NULL;
   value res;
@@ -96,7 +99,7 @@ result * ocamlsearch()
 
   if (ocamlsearch == NULL)
     ocamlsearch = caml_named_value("ocamlsearchr"); 
-  res = callback_exn(*ocamlsearch, Val_int(0));
+  res = callback_exn(*ocamlsearch, Val_int(search));
   if (Is_exception_result(res)) 
     {
       result = malloc(sizeof(result));
@@ -112,10 +115,10 @@ result * ocamlsearch()
 }
 
 
-int get_position()
+int get_position(int search)
 {
   static value * pos = NULL;
   if (pos == NULL)
     pos = caml_named_value("pos");
-  return Int_val(caml_callback(*pos, Val_int(0)));
+  return Int_val(caml_callback(*pos, Val_int(search)));
 }
